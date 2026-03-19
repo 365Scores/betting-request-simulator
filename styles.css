@@ -1,0 +1,193 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: #0f1115;
+  color: #e6e9ef;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+p {
+  margin: 0;
+  color: #b7bdc9;
+}
+
+.card {
+  background: #171a21;
+  border: 1px solid #242a36;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 14px;
+  color: #9da4b1;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #2a313f;
+  background: #0f1115;
+  color: #e6e9ef;
+  font-size: 14px;
+}
+
+textarea {
+  min-height: 220px;
+  resize: vertical;
+  font-family: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+}
+
+button {
+  border: none;
+  background: #4f77ff;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button.secondary {
+  background: #2b313d;
+}
+
+button.ghost {
+  background: transparent;
+  border: 1px solid #2b313d;
+}
+
+.builder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.param-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.6fr) 1fr 1.2fr auto;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.param-row button {
+  padding: 10px;
+}
+
+.param-label {
+  align-self: center;
+  font-size: 13px;
+  color: #c1c9d6;
+}
+
+.param-key {
+  background: #131722;
+  color: #9aa3b2;
+}
+
+.status {
+  font-size: 13px;
+  margin-top: 8px;
+  color: #95a0b4;
+}
+
+.result {
+  padding: 16px;
+  border-radius: 10px;
+  background: #0f1115;
+  border: 1px solid #2a313f;
+  min-height: 64px;
+  line-height: 1.6;
+}
+
+.parsed {
+  margin: 12px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #141820;
+  border: 1px solid #2a313f;
+  color: #c9d2e1;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.response {
+  margin: 8px 0 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: #0f1115;
+  border: 1px solid #2a313f;
+  min-height: 120px;
+  color: #c9d2e1;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.history {
+  margin: 0;
+  padding-left: 18px;
+  color: #c2c7d4;
+}
+
+.history li {
+  margin-bottom: 10px;
+}
+
+.muted {
+  color: #9aa3b2;
+}

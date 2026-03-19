@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Betting Request Simulator</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <div>
+          <h1>Betting Request Simulator</h1>
+          <p>
+            Build URL-based requests and simulate which bookmaker is chosen
+            based on your parameters. This app does not send real requests.
+          </p>
+        </div>
+        <button id="loadExample" class="secondary">Load example</button>
+      </header>
+
+      <section class="card">
+        <h2>Request URL</h2>
+        <div class="row">
+          <input
+            id="requestUrl"
+            type="url"
+            spellcheck="false"
+            placeholder="https://mobileapi.365scores.com/Data/Games/GameCenter/?TopBM=14&games=4467438"
+          />
+          <button id="parseUrl">Parse</button>
+          <button id="simulate">Simulate</button>
+          <button id="sendRequest" class="secondary">Send request</button>
+        </div>
+        <div id="urlStatus" class="status"></div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>Builder</h2>
+          <label class="label">Base URL</label>
+          <input id="baseUrl" type="url" spellcheck="false" />
+          <div class="builder-header">
+            <label class="label">Query parameters</label>
+            <button id="addParam" class="secondary">Add param</button>
+          </div>
+          <div id="params"></div>
+          <div class="row">
+            <button id="buildUrl" class="secondary">Build URL</button>
+            <button id="clearParams" class="ghost">Clear</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Bookmaker Rules</h2>
+          <p class="muted">
+            Edit the mapping rules below to simulate how a bookmaker is chosen.
+          </p>
+          <textarea id="rules" spellcheck="false"></textarea>
+          <div class="row">
+            <button id="validateRules" class="secondary">Validate rules</button>
+            <span id="rulesStatus" class="status"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Simulation Result</h2>
+        <div id="result" class="result muted">
+          Run a simulation to see which bookmaker is selected.
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Response</h2>
+        <div id="responseStatus" class="status"></div>
+        <pre id="responseBody" class="response muted">
+No response yet. Send a request to see the parsed response.
+        </pre>
+      </section>
+
+      <section class="card">
+        <h2>History</h2>
+        <ul id="history" class="history muted">
+          <li>No simulations yet.</li>
+        </ul>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
