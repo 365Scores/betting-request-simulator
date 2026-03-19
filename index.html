@@ -12,8 +12,7 @@
         <div>
           <h1>Betting Request Simulator</h1>
           <p>
-            Build URL-based requests and simulate which bookmaker is chosen
-            based on your parameters. This app does not send real requests.
+            Build and send requests to the betting rules backend service.
           </p>
         </div>
         <button id="loadExample" class="secondary">Load example</button>
@@ -26,10 +25,9 @@
             id="requestUrl"
             type="url"
             spellcheck="false"
-            placeholder="https://mobileapi.365scores.com/Data/Games/GameCenter/?TopBM=14&games=4467438"
+            placeholder="https://mobileapi.365scores.com/Data/Games/GameCenter/?games=4467438&lang=10&uc=13"
           />
           <button id="parseUrl">Parse</button>
-          <button id="simulate">Simulate</button>
           <button id="sendRequest" class="secondary">Send request</button>
         </div>
         <div id="urlStatus" class="status"></div>
@@ -40,11 +38,111 @@
           <h2>Builder</h2>
           <label class="label">Base URL</label>
           <input id="baseUrl" type="url" spellcheck="false" />
-          <div class="builder-header">
-            <label class="label">Query parameters</label>
-            <button id="addParam" class="secondary">Add param</button>
+
+          <div class="param-group">
+            <div class="param-group-title">Game</div>
+            <div class="param-grid">
+              <div class="param-field">
+                <label class="label">Game ID</label>
+                <input id="p-games" type="text" placeholder="4467438" />
+              </div>
+            </div>
+            <div class="param-toggles">
+              <label class="toggle-label"><input type="checkbox" id="p-withexpanded" /> With expanded</label>
+              <label class="toggle-label"><input type="checkbox" id="p-withexpandedstats" /> With expanded stats</label>
+              <label class="toggle-label"><input type="checkbox" id="p-withnews" /> With news</label>
+              <label class="toggle-label"><input type="checkbox" id="p-withstats" /> With stats</label>
+            </div>
           </div>
-          <div id="params"></div>
+
+          <div class="param-group">
+            <div class="param-group-title">Client</div>
+            <div class="param-grid">
+              <div class="param-field">
+                <label class="label">App type</label>
+                <div class="select-wrapper">
+                  <select id="p-apptype">
+                    <option value="">—</option>
+                    <option value="1">1 — iOS</option>
+                    <option value="2">2 — Android</option>
+                  </select>
+                </div>
+              </div>
+              <div class="param-field">
+                <label class="label">App version</label>
+                <input id="p-appversion" type="text" placeholder="6.3.4" />
+              </div>
+              <div class="param-field">
+                <label class="label">Store version</label>
+                <input id="p-storeversion" type="text" placeholder="6.3.4" />
+              </div>
+              <div class="param-field">
+                <label class="label">Publisher</label>
+                <input id="p-publisher" type="text" placeholder="147" />
+              </div>
+              <div class="param-field">
+                <label class="label">Theme</label>
+                <div class="select-wrapper">
+                  <select id="p-theme">
+                    <option value="">—</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="param-group">
+            <div class="param-group-title">User</div>
+            <div class="param-grid">
+              <div class="param-field">
+                <label class="label">Language</label>
+                <input id="p-lang" type="text" placeholder="10" />
+              </div>
+              <div class="param-field">
+                <label class="label">User country</label>
+                <input id="p-uc" type="text" placeholder="13" />
+              </div>
+              <div class="param-field">
+                <label class="label">Timezone</label>
+                <input id="p-tz" type="text" placeholder="15" />
+              </div>
+              <div class="param-field">
+                <label class="label">User test group</label>
+                <input id="p-usertestgroup" type="text" placeholder="69" />
+              </div>
+            </div>
+          </div>
+
+          <div class="param-group">
+            <div class="param-group-title">Odds</div>
+            <div class="param-grid">
+              <div class="param-field">
+                <label class="label">Odds format</label>
+                <div class="select-wrapper">
+                  <select id="p-oddsformat">
+                    <option value="">—</option>
+                    <option value="1">1 — Decimal</option>
+                    <option value="2">2 — American</option>
+                    <option value="3">3 — Fractional</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="param-toggles">
+              <label class="toggle-label"><input type="checkbox" id="p-shownaodds" /> Show N/A odds</label>
+            </div>
+          </div>
+
+          <div class="param-group">
+            <div class="extra-params-header">
+              <div class="param-group-title">Extra parameters</div>
+              <button id="addParam" class="ghost">+ Add</button>
+            </div>
+            <div id="extraParams"></div>
+          </div>
+
           <div class="row">
             <button id="buildUrl" class="secondary">Build URL</button>
             <button id="clearParams" class="ghost">Clear</button>
@@ -52,31 +150,12 @@
         </div>
 
         <div class="card">
-          <h2>Bookmaker Rules</h2>
-          <p class="muted">
-            Edit the mapping rules below to simulate how a bookmaker is chosen.
-          </p>
-          <textarea id="rules" spellcheck="false"></textarea>
-          <div class="row">
-            <button id="validateRules" class="secondary">Validate rules</button>
-            <span id="rulesStatus" class="status"></span>
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Simulation Result</h2>
-        <div id="result" class="result muted">
-          Run a simulation to see which bookmaker is selected.
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Response</h2>
-        <div id="responseStatus" class="status"></div>
-        <pre id="responseBody" class="response muted">
+          <h2>Response</h2>
+          <div id="responseStatus" class="status"></div>
+          <pre id="responseBody" class="response muted">
 No response yet. Send a request to see the parsed response.
-        </pre>
+          </pre>
+        </div>
       </section>
 
       <section class="card">

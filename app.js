@@ -1,82 +1,39 @@
 const exampleUrl =
-  "https://mobileapi.365scores.com/Data/Dashboard/Light/?NewsLang=9&Countries=&Competitions=352,17,7,103,42,572&Competitors=226,5034,559&Games=4593622,4656261,4653524,4615954,4654785,4615953,4655000&Athletes=48298,39820&UserCountry=21&OnlyInLang=true&OnlyInCountry=false&WithTransfers=true&newsSources=&FilterSourcesOut=true&IsTablet=false&OddsFormat=1&lang=9&AppType=2&AppVersion=1456&uc=21&tz=15&theme=dark&StoreVersion=1456&athletesSupported=true&UserTestGroup=29";
+  "https://mobileapi.365scores.com/Data/Games/GameCenter/?apptype=1&appversion=6.3.4&games=4467438&lang=10&oddsformat=1&shownaodds=true&storeversion=6.3.4&theme=light&tz=15&uc=13&usertestgroup=69&withexpanded=true&withexpandedstats=true&withnews=true&withstats=false&publisher=147";
 
-const defaultRules = {
-  topBmOverrides: {
-    "14": "Bet365",
-    "1": "DraftKings",
-    "2": "FanDuel",
-  },
-  countryMap: {
-    "39": "Bet365",
-    "31": "Caliente",
-    "2": "Codere",
-    "4": "Tipico",
-  },
-  langMap: {
-    "1": "Bet365",
-    "10": "SkyBet",
-    "15": "ParionsSport",
-  },
-  tzMap: {
-    "15": "Bet365",
-    "0": "Betway",
-  },
-  fallback: "GenericBookmaker",
-};
+const structuredFields = [
+  { id: "p-games",            key: "games",            type: "text" },
+  { id: "p-withexpanded",     key: "withexpanded",     type: "checkbox" },
+  { id: "p-withexpandedstats",key: "withexpandedstats",type: "checkbox" },
+  { id: "p-withnews",         key: "withnews",         type: "checkbox" },
+  { id: "p-withstats",        key: "withstats",        type: "checkbox" },
+  { id: "p-apptype",          key: "apptype",          type: "select" },
+  { id: "p-appversion",       key: "appversion",       type: "text" },
+  { id: "p-storeversion",     key: "storeversion",     type: "text" },
+  { id: "p-publisher",        key: "publisher",        type: "text" },
+  { id: "p-theme",            key: "theme",            type: "select" },
+  { id: "p-lang",             key: "lang",             type: "text" },
+  { id: "p-uc",               key: "uc",               type: "text" },
+  { id: "p-tz",               key: "tz",               type: "text" },
+  { id: "p-usertestgroup",    key: "usertestgroup",    type: "text" },
+  { id: "p-oddsformat",       key: "oddsformat",       type: "select" },
+  { id: "p-shownaodds",       key: "shownaodds",       type: "checkbox" },
+];
 
-const paramDisplayNames = {
-  NewsLang: "News language",
-  Countries: "Countries filter",
-  Competitions: "Competitions list",
-  Competitors: "Competitors list",
-  Games: "Games list",
-  Athletes: "Athletes list",
-  UserCountry: "User country",
-  OnlyInLang: "Only in language",
-  OnlyInCountry: "Only in country",
-  WithTransfers: "Include transfers",
-  newsSources: "News sources",
-  FilterSourcesOut: "Filter sources out",
-  IsTablet: "Is tablet",
-  OddsFormat: "Odds format",
-  lang: "Language",
-  AppType: "App type",
-  AppVersion: "App version",
-  uc: "User country code",
-  tz: "Timezone",
-  theme: "Theme",
-  StoreVersion: "Store version",
-  athletesSupported: "Athletes supported",
-  UserTestGroup: "User test group",
-  TopBM: "Top bookmaker",
-  withExpanded: "With expanded",
-  games: "Game id",
-  withstats: "With stats",
-  withexpandedstats: "With expanded stats",
-  ShowNAOdds: "Show N/A odds",
-  WithNews: "Include news",
-  attnw: "Attnw",
-};
+const extraParamsContainer = document.getElementById("extraParams");
+const addParamButton       = document.getElementById("addParam");
 
-const requestUrlInput = document.getElementById("requestUrl");
-const parseButton = document.getElementById("parseUrl");
-const simulateButton = document.getElementById("simulate");
-const sendRequestButton = document.getElementById("sendRequest");
-const loadExampleButton = document.getElementById("loadExample");
-const urlStatus = document.getElementById("urlStatus");
-const baseUrlInput = document.getElementById("baseUrl");
-const paramsContainer = document.getElementById("params");
-const addParamButton = document.getElementById("addParam");
-const buildUrlButton = document.getElementById("buildUrl");
-const clearParamsButton = document.getElementById("clearParams");
-const rulesTextarea = document.getElementById("rules");
-const validateRulesButton = document.getElementById("validateRules");
-const rulesStatus = document.getElementById("rulesStatus");
-const resultContainer = document.getElementById("result");
-const responseStatus = document.getElementById("responseStatus");
-const responseBody = document.getElementById("responseBody");
-const historyList = document.getElementById("history");
+const requestUrlInput  = document.getElementById("requestUrl");
+const parseButton      = document.getElementById("parseUrl");
+const sendRequestButton= document.getElementById("sendRequest");
+const loadExampleButton= document.getElementById("loadExample");
+const urlStatus        = document.getElementById("urlStatus");
+const baseUrlInput     = document.getElementById("baseUrl");
+const buildUrlButton   = document.getElementById("buildUrl");
+const clearParamsButton= document.getElementById("clearParams");
+const responseStatus   = document.getElementById("responseStatus");
+const responseBody     = document.getElementById("responseBody");
+const historyList      = document.getElementById("history");
 
 const historyEntries = [];
 
@@ -89,186 +46,105 @@ function clearStatus(element) {
   element.textContent = "";
 }
 
-function getDisplayName(key) {
-  return paramDisplayNames[key] || key || "Custom parameter";
-}
-
-function createParamRow(key = "", value = "") {
-  const row = document.createElement("div");
-  row.className = "param-row";
-
-  const nameLabel = document.createElement("div");
-  nameLabel.className = "param-label";
-  nameLabel.textContent = getDisplayName(key);
-
-  const keyInput = document.createElement("input");
-  keyInput.placeholder = "key";
-  keyInput.value = key;
-  keyInput.className = "param-key";
-  keyInput.addEventListener("input", () => {
-    nameLabel.textContent = getDisplayName(keyInput.value.trim());
-  });
-
-  const valueInput = document.createElement("input");
-  valueInput.placeholder = "value";
-  valueInput.value = value;
-
-  const removeButton = document.createElement("button");
-  removeButton.className = "ghost";
-  removeButton.textContent = "Remove";
-  removeButton.addEventListener("click", () => row.remove());
-
-  row.append(nameLabel, keyInput, valueInput, removeButton);
-  return row;
-}
-
-function populateParams(params) {
-  paramsContainer.innerHTML = "";
-  if (params.length === 0) {
-    paramsContainer.append(createParamRow());
-    return;
-  }
-  params.forEach(({ key, value }) => {
-    paramsContainer.append(createParamRow(key, value));
-  });
-}
-
-function readParamsFromUI() {
-  const rows = Array.from(paramsContainer.querySelectorAll(".param-row"));
-  return rows
-    .map((row) => {
-      const inputs = row.querySelectorAll("input");
-      return {
-        key: inputs[0].value.trim(),
-        value: inputs[1].value.trim(),
-      };
-    })
-    .filter((item) => item.key.length > 0);
-}
-
 function parseUrl(urlString) {
   const url = new URL(urlString);
   const params = [];
-  url.searchParams.forEach((value, key) => {
-    params.push({ key, value });
-  });
+  url.searchParams.forEach((value, key) => params.push({ key, value }));
   return { baseUrl: url.origin + url.pathname, params };
 }
 
 function buildUrl(baseUrl, params) {
   const url = new URL(baseUrl);
   params.forEach(({ key, value }) => {
-    if (key.length === 0) {
-      return;
-    }
-    url.searchParams.set(key, value);
+    if (key) url.searchParams.set(key, value);
   });
   return url.toString();
 }
 
-function parseRules() {
-  try {
-    const rules = JSON.parse(rulesTextarea.value);
-    rulesStatus.textContent = "Rules valid.";
-    rulesStatus.style.color = "#7ee787";
-    return { rules, error: null };
-  } catch (error) {
-    rulesStatus.textContent = "Rules invalid JSON.";
-    rulesStatus.style.color = "#ff7d7d";
-    return { rules: null, error };
-  }
+function populateStructuredParams(params) {
+  const knownKeys = new Set(structuredFields.map(({ key }) => key.toLowerCase()));
+  const map = {};
+  params.forEach(({ key, value }) => { map[key.toLowerCase()] = value; });
+
+  structuredFields.forEach(({ id, key, type }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const value = map[key.toLowerCase()];
+    if (value === undefined) return;
+    if (type === "checkbox") {
+      el.checked = value === "true";
+    } else {
+      el.value = value;
+    }
+  });
+
+  extraParamsContainer.innerHTML = "";
+  params
+    .filter(({ key }) => !knownKeys.has(key.toLowerCase()))
+    .forEach(({ key, value }) => {
+      extraParamsContainer.append(createExtraParamRow(key, value));
+    });
 }
 
-function determineBookmaker(params, rules) {
-  if (!rules) {
-    return { bookmaker: "Unknown", reason: "Rules are invalid JSON." };
-  }
-
-  const steps = [];
-  const topBm = params.TopBM;
-  if (topBm && rules.topBmOverrides && rules.topBmOverrides[topBm]) {
-    steps.push(`TopBM=${topBm} matched override.`);
-    return { bookmaker: rules.topBmOverrides[topBm], reason: steps.join(" ") };
-  }
-
-  const country = params.uc;
-  if (country && rules.countryMap && rules.countryMap[country]) {
-    steps.push(`uc=${country} matched country map.`);
-    return { bookmaker: rules.countryMap[country], reason: steps.join(" ") };
-  }
-
-  const lang = params.lang;
-  if (lang && rules.langMap && rules.langMap[lang]) {
-    steps.push(`lang=${lang} matched language map.`);
-    return { bookmaker: rules.langMap[lang], reason: steps.join(" ") };
-  }
-
-  const tz = params.tz;
-  if (tz && rules.tzMap && rules.tzMap[tz]) {
-    steps.push(`tz=${tz} matched timezone map.`);
-    return { bookmaker: rules.tzMap[tz], reason: steps.join(" ") };
-  }
-
-  steps.push("No rule matched; using fallback.");
-  return {
-    bookmaker: rules.fallback || "Unknown",
-    reason: steps.join(" "),
-  };
+function readParamsFromUI() {
+  const structured = structuredFields.flatMap(({ id, key, type }) => {
+    const el = document.getElementById(id);
+    if (!el) return [];
+    const value = type === "checkbox" ? String(el.checked) : el.value.trim();
+    if (value === "" || value === "false") return [];
+    return [{ key, value }];
+  });
+  return [...structured, ...readExtraParams()];
 }
 
-function updateHistory(entry) {
-  historyEntries.unshift(entry);
+function clearStructuredParams() {
+  structuredFields.forEach(({ id, type }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (type === "checkbox") el.checked = false;
+    else el.value = "";
+  });
+  extraParamsContainer.innerHTML = "";
+}
+
+function createExtraParamRow(key = "", value = "") {
+  const row = document.createElement("div");
+  row.className = "extra-param-row";
+
+  const keyInput = document.createElement("input");
+  keyInput.placeholder = "key";
+  keyInput.value = key;
+  keyInput.className = "extra-param-key";
+
+  const valueInput = document.createElement("input");
+  valueInput.placeholder = "value";
+  valueInput.value = value;
+
+  const removeBtn = document.createElement("button");
+  removeBtn.className = "ghost";
+  removeBtn.textContent = "✕";
+  removeBtn.addEventListener("click", () => row.remove());
+
+  row.append(keyInput, valueInput, removeBtn);
+  return row;
+}
+
+function readExtraParams() {
+  return Array.from(extraParamsContainer.querySelectorAll(".extra-param-row"))
+    .map((row) => {
+      const [keyEl, valueEl] = row.querySelectorAll("input");
+      return { key: keyEl.value.trim(), value: valueEl.value.trim() };
+    })
+    .filter(({ key }) => key.length > 0);
+}
+
+function updateHistory(url, status) {
+  historyEntries.unshift({ url, status, time: new Date().toLocaleTimeString() });
   historyList.innerHTML = "";
   historyEntries.slice(0, 8).forEach((item) => {
     const li = document.createElement("li");
-    li.innerHTML = `<strong>${item.bookmaker}</strong> — ${item.reason}<br /><span class="muted">${item.url}</span>`;
+    li.innerHTML = `<strong>${item.status}</strong> — <span class="muted">${item.time}</span><br /><span class="muted">${item.url}</span>`;
     historyList.append(li);
-  });
-}
-
-function simulate() {
-  clearStatus(urlStatus);
-  const urlValue = requestUrlInput.value.trim();
-  if (!urlValue) {
-    setStatus(urlStatus, "Paste or build a URL first.", true);
-    return;
-  }
-
-  let parsed;
-  try {
-    parsed = parseUrl(urlValue);
-  } catch (error) {
-    setStatus(urlStatus, "Invalid URL.", true);
-    return;
-  }
-
-  const paramsObject = {};
-  parsed.params.forEach(({ key, value }) => {
-    paramsObject[key] = value;
-  });
-
-  const { rules } = parseRules();
-  const selection = determineBookmaker(paramsObject, rules);
-
-  resultContainer.classList.remove("muted");
-  const parsedPayload = JSON.stringify(
-    { baseUrl: parsed.baseUrl, params: parsed.params },
-    null,
-    2
-  );
-  resultContainer.innerHTML = `
-    <strong>${selection.bookmaker}</strong>
-    <div class="muted">${selection.reason}</div>
-    <div class="muted">Parameters: ${parsed.params
-      .map((item) => `${item.key}=${item.value}`)
-      .join(", ")}</div>
-    <pre class="parsed">${parsedPayload}</pre>
-  `;
-
-  updateHistory({
-    bookmaker: selection.bookmaker,
-    reason: selection.reason,
-    url: urlValue,
   });
 }
 
@@ -289,11 +165,7 @@ async function sendRequest() {
     response = await fetch(urlValue, { method: "GET" });
   } catch (error) {
     responseBody.textContent = "";
-    setStatus(
-      responseStatus,
-      "Request failed. This is often a CORS restriction in the browser.",
-      true
-    );
+    setStatus(responseStatus, "Request failed. This is often a CORS restriction in the browser.", true);
     return;
   }
 
@@ -302,45 +174,34 @@ async function sendRequest() {
   try {
     bodyText = await response.text();
     bodyJson = JSON.parse(bodyText);
-  } catch (error) {
-    bodyJson = null;
-  }
+  } catch (_) {}
 
+  const statusLabel = `${response.status} ${response.statusText}`;
   if (!response.ok) {
-    setStatus(
-      responseStatus,
-      `Request returned ${response.status} ${response.statusText}.`,
-      true
-    );
+    setStatus(responseStatus, `Request returned ${statusLabel}.`, true);
   } else {
-    setStatus(
-      responseStatus,
-      `Response received (${response.status} ${response.statusText}).`
-    );
+    setStatus(responseStatus, `Response received (${statusLabel}).`);
   }
 
-  if (bodyJson) {
-    responseBody.textContent = JSON.stringify(bodyJson, null, 2);
-  } else if (bodyText) {
-    responseBody.textContent = bodyText;
-  } else {
-    responseBody.textContent = "(No response body)";
-  }
+  responseBody.textContent = bodyJson
+    ? JSON.stringify(bodyJson, null, 2)
+    : bodyText || "(No response body)";
+
+  updateHistory(urlValue, statusLabel);
 }
 
 function initialize() {
+  const parsed = parseUrl(exampleUrl);
   requestUrlInput.value = exampleUrl;
-  rulesTextarea.value = JSON.stringify(defaultRules, null, 2);
-  parseRules();
-  populateParams(parseUrl(exampleUrl).params);
-  baseUrlInput.value = parseUrl(exampleUrl).baseUrl;
+  baseUrlInput.value = parsed.baseUrl;
+  populateStructuredParams(parsed.params);
 }
 
 loadExampleButton.addEventListener("click", () => {
-  requestUrlInput.value = exampleUrl;
   const parsed = parseUrl(exampleUrl);
+  requestUrlInput.value = exampleUrl;
   baseUrlInput.value = parsed.baseUrl;
-  populateParams(parsed.params);
+  populateStructuredParams(parsed.params);
   setStatus(urlStatus, "Example URL loaded.");
 });
 
@@ -351,23 +212,17 @@ parseButton.addEventListener("click", () => {
     setStatus(urlStatus, "Paste a URL to parse.", true);
     return;
   }
-
   try {
     const parsed = parseUrl(urlValue);
     baseUrlInput.value = parsed.baseUrl;
-    populateParams(parsed.params);
+    populateStructuredParams(parsed.params);
     setStatus(urlStatus, "Parsed into builder.");
-  } catch (error) {
+  } catch (_) {
     setStatus(urlStatus, "Invalid URL.", true);
   }
 });
 
-simulateButton.addEventListener("click", simulate);
 sendRequestButton.addEventListener("click", sendRequest);
-
-addParamButton.addEventListener("click", () => {
-  paramsContainer.append(createParamRow());
-});
 
 buildUrlButton.addEventListener("click", () => {
   clearStatus(urlStatus);
@@ -376,23 +231,22 @@ buildUrlButton.addEventListener("click", () => {
     setStatus(urlStatus, "Provide a base URL.", true);
     return;
   }
-  const params = readParamsFromUI();
   try {
-    const builtUrl = buildUrl(baseUrl, params);
+    const builtUrl = buildUrl(baseUrl, readParamsFromUI());
     requestUrlInput.value = builtUrl;
     setStatus(urlStatus, "URL built from builder.");
-  } catch (error) {
+  } catch (_) {
     setStatus(urlStatus, "Base URL is invalid.", true);
   }
 });
 
-clearParamsButton.addEventListener("click", () => {
-  paramsContainer.innerHTML = "";
-  paramsContainer.append(createParamRow());
+addParamButton.addEventListener("click", () => {
+  extraParamsContainer.append(createExtraParamRow());
 });
 
-validateRulesButton.addEventListener("click", () => {
-  parseRules();
+clearParamsButton.addEventListener("click", () => {
+  clearStructuredParams();
+  baseUrlInput.value = "";
 });
 
 initialize();
