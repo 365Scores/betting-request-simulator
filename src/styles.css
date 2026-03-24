@@ -213,6 +213,43 @@ button.ghost {
 
 
 
+.db-select {
+  position: relative;
+}
+
+.db-select input {
+  width: 100%;
+}
+
+.db-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #1a1f2b;
+  border: 1px solid #2a313f;
+  border-radius: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.db-select-option {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #c9d2e1;
+  cursor: pointer;
+}
+
+.db-select-option:hover {
+  background: #242a36;
+}
+
+.db-select-option--selected {
+  color: #4f77ff;
+}
+
 .param-toggles {
   display: flex;
   flex-wrap: wrap;

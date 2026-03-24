@@ -51,17 +51,21 @@ export default function ResponseSummary({ responseJson }) {
     <div className="card">
       <h2>Response Summary</h2>
 
-      {returnedBm && (
-        <div className="summary-top">
-          <div className="summary-section-label">Returned bookmaker</div>
+      <div className="summary-top">
+        <div className="summary-section-label">Returned bookmaker</div>
+        {returnedBm ? (
           <div className="summary-returned">
             <div className="summary-returned-dot" style={{ background: returnedBm.color }} />
             <div className="summary-returned-name" style={{ color: returnedBm.color }}>
               {returnedBm.name}
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="summary-returned-name" style={{ color: "#6b7585" }}>
+            No bookies for this type of user
+          </div>
+        )}
+      </div>
 
       <div className="summary-dist">
         <div className="summary-section-label">

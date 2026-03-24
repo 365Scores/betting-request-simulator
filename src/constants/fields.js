@@ -15,7 +15,7 @@ export const structuredFields = [
   { id: "p-theme",             key: "theme",             type: "select",   group: "client", label: "Theme",
     options: [{ value: "", label: "—" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }] },
   { id: "p-lang",              key: "lang",              type: "text",     group: "user",   label: "Language",       placeholder: "10" },
-  { id: "p-uc",                key: "uc",                type: "text",     group: "user",   label: "User country",   placeholder: "13" },
+  { id: "p-uc",                key: "uc",                type: "db-select", group: "user",  label: "User country",   dbKey: "countries" },
   { id: "p-tz",                key: "tz",                type: "text",     group: "user",   label: "Timezone",       placeholder: "15" },
   { id: "p-usertestgroup",     key: "usertestgroup",     type: "text",     group: "user",   label: "User test group", placeholder: "69" },
   { id: "p-oddsformat",        key: "oddsformat",        type: "select",   group: "odds",   label: "Odds format",

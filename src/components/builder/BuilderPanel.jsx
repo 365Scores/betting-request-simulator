@@ -1,4 +1,5 @@
 import { structuredFields } from "../../constants/fields";
+import { useCountries } from "../../hooks/useDbData";
 import ParamField from "./ParamField";
 
 const groups = [
@@ -14,6 +15,14 @@ export default function BuilderPanel({
   extras, onAddExtra, onRemoveExtra, onExtraChange,
   onBuild, onClear,
 }) {
+  const { data: countries } = useCountries();
+  const seenIds = new Set();
+  const dbOptions = {
+    countries: countries
+      .filter((c) => { if (seenIds.has(c.id)) return false; seenIds.add(c.id); return true; })
+      .map((c) => ({ value: String(c.id), label: c.name || c.code })),
+  };
+
   return (
     <div className="card">
       <h2>Builder</h2>
@@ -39,6 +48,7 @@ export default function BuilderPanel({
                     onChange={(val) => onParamChange(field.key, val)}
                     placeholder={field.placeholder}
                     options={field.options}
+                    dbOptions={field.dbKey ? dbOptions[field.dbKey] : undefined}
                   />
                 ))}
               </div>
