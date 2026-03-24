@@ -138,6 +138,129 @@ function readExtraParams() {
     .filter(({ key }) => key.length > 0);
 }
 
+function createJsonNode(value, depth = 0) {
+  if (value === null) {
+    const s = document.createElement("span");
+    s.className = "json-null";
+    s.textContent = "null";
+    return s;
+  }
+  if (typeof value === "boolean") {
+    const s = document.createElement("span");
+    s.className = "json-boolean";
+    s.textContent = String(value);
+    return s;
+  }
+  if (typeof value === "number") {
+    const s = document.createElement("span");
+    s.className = "json-number";
+    s.textContent = String(value);
+    return s;
+  }
+  if (typeof value === "string") {
+    const s = document.createElement("span");
+    s.className = "json-string";
+    s.textContent = `"${value}"`;
+    return s;
+  }
+
+  const isArray = Array.isArray(value);
+  const entries = isArray
+    ? value.map((v, i) => [i, v])
+    : Object.entries(value);
+  const openBracket  = isArray ? "[" : "{";
+  const closeBracket = isArray ? "]" : "}";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "json-node";
+
+  if (entries.length === 0) {
+    const empty = document.createElement("span");
+    empty.className = "json-bracket";
+    empty.textContent = openBracket + closeBracket;
+    wrapper.append(empty);
+    return wrapper;
+  }
+
+  // Header row: toggle ▼ { (N keys)
+  const headerRow = document.createElement("div");
+  headerRow.className = "json-header";
+
+  const toggle = document.createElement("button");
+  toggle.className = "json-toggle-btn";
+  toggle.textContent = "▼";
+
+  const bracketOpen = document.createElement("span");
+  bracketOpen.className = "json-bracket";
+  bracketOpen.textContent = openBracket;
+
+  const summary = document.createElement("span");
+  summary.className = "json-summary";
+  summary.textContent = isArray
+    ? ` ${entries.length} items`
+    : ` ${entries.length} keys`;
+
+  const collapsedInline = document.createElement("span");
+  collapsedInline.className = "json-collapsed-inline";
+  collapsedInline.textContent = isArray ? " […]" : " {…}";
+  collapsedInline.style.display = "none";
+
+  headerRow.append(toggle, bracketOpen, summary, collapsedInline);
+
+  // Children
+  const children = document.createElement("div");
+  children.className = "json-children";
+
+  entries.forEach(([key, val], idx) => {
+    const row = document.createElement("div");
+    row.className = "json-row";
+
+    if (!isArray) {
+      const keySpan = document.createElement("span");
+      keySpan.className = "json-key";
+      keySpan.textContent = `"${key}": `;
+      row.append(keySpan);
+    }
+
+    row.append(createJsonNode(val, depth + 1));
+
+    if (idx < entries.length - 1) {
+      const comma = document.createElement("span");
+      comma.className = "json-comma";
+      comma.textContent = ",";
+      row.append(comma);
+    }
+
+    children.append(row);
+  });
+
+  const bracketClose = document.createElement("div");
+  bracketClose.className = "json-bracket";
+  bracketClose.textContent = closeBracket;
+
+  const startCollapsed = depth >= 1;
+
+  if (startCollapsed) {
+    children.style.display        = "none";
+    bracketClose.style.display    = "none";
+    summary.style.display         = "none";
+    collapsedInline.style.display = "inline";
+    toggle.textContent            = "▶";
+  }
+
+  toggle.addEventListener("click", () => {
+    const isCollapsed = children.style.display === "none";
+    children.style.display        = isCollapsed ? "" : "none";
+    bracketClose.style.display    = isCollapsed ? "" : "none";
+    summary.style.display         = isCollapsed ? "" : "none";
+    collapsedInline.style.display = isCollapsed ? "none" : "inline";
+    toggle.textContent            = isCollapsed ? "▼" : "▶";
+  });
+
+  wrapper.append(headerRow, children, bracketClose);
+  return wrapper;
+}
+
 function updateHistory(url, status) {
   historyEntries.unshift({ url, status, time: new Date().toLocaleTimeString() });
   historyList.innerHTML = "";
@@ -183,9 +306,13 @@ async function sendRequest() {
     setStatus(responseStatus, `Response received (${statusLabel}).`);
   }
 
-  responseBody.textContent = bodyJson
-    ? JSON.stringify(bodyJson, null, 2)
-    : bodyText || "(No response body)";
+  responseBody.innerHTML = "";
+  responseBody.classList.remove("muted");
+  if (bodyJson !== null) {
+    responseBody.append(createJsonNode(bodyJson));
+  } else {
+    responseBody.textContent = bodyText || "(No response body)";
+  }
 
   updateHistory(urlValue, statusLabel);
 }

@@ -266,11 +266,58 @@ button.ghost {
   border-radius: 10px;
   background: #0f1115;
   border: 1px solid #2a313f;
-  min-height: 120px;
-  color: #c9d2e1;
-  overflow-x: auto;
-  white-space: pre-wrap;
+  height: 450px;
+  overflow: auto;
+  font-family: "SFMono-Regular", ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.7;
 }
+
+.json-node {
+  display: inline;
+}
+
+.json-header {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.json-children {
+  padding-left: 20px;
+  border-left: 1px solid #242a36;
+  margin-left: 6px;
+}
+
+.json-row {
+  display: block;
+}
+
+.json-toggle-btn {
+  background: none;
+  border: none;
+  color: #4f77ff;
+  cursor: pointer;
+  font-size: 10px;
+  padding: 0 3px 0 0;
+  line-height: inherit;
+  vertical-align: middle;
+}
+
+.json-toggle-btn:hover {
+  transform: none;
+  color: #7a9bff;
+}
+
+.json-bracket   { color: #c9d2e1; }
+.json-summary   { color: #4b5263; font-size: 12px; }
+.json-collapsed-inline { color: #4b5263; }
+.json-key       { color: #79b8ff; }
+.json-string    { color: #9ecbff; }
+.json-number    { color: #f8c555; }
+.json-boolean   { color: #f97583; }
+.json-null      { color: #6a737d; }
+.json-comma     { color: #c9d2e1; }
 
 .history {
   margin: 0;
