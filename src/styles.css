@@ -408,6 +408,12 @@ button.ghost {
 .summary-returned-name {
   font-size: 24px;
   font-weight: 700;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.35);
+  text-shadow:
+    1px 1px 0 rgba(0,0,0,0.5),
+    2px 2px 0 rgba(0,0,0,0.35),
+    3px 3px 0 rgba(0,0,0,0.2),
+    4px 4px 6px rgba(0,0,0,0.3);
 }
 
 .summary-dist {

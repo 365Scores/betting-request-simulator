@@ -23,3 +23,7 @@ export function useCountries() {
 export function useLanguages() {
   return useFetch("/languages");
 }
+
+export function usePublishers() {
+  return useFetch("/publishers");
+}

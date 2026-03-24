@@ -1,5 +1,5 @@
 import { structuredFields } from "../../constants/fields";
-import { useCountries, useLanguages } from "../../hooks/useDbData";
+import { useCountries, useLanguages, usePublishers } from "../../hooks/useDbData";
 import ParamField from "./ParamField";
 
 const groups = [
@@ -17,9 +17,11 @@ export default function BuilderPanel({
 }) {
   const { data: countries } = useCountries();
   const { data: languages } = useLanguages();
+  const { data: publishers } = usePublishers();
 
   const seenCountryIds = new Set();
   const seenLangIds = new Set();
+  const seenPublisherIds = new Set();
   const dbOptions = {
     countries: countries
       .filter((c) => { if (seenCountryIds.has(c.id)) return false; seenCountryIds.add(c.id); return true; })
@@ -28,6 +30,10 @@ export default function BuilderPanel({
     languages: languages
       .filter((l) => { if (seenLangIds.has(l.id)) return false; seenLangIds.add(l.id); return true; })
       .map((l) => ({ value: String(l.id), label: l.name || l.cultureName || l.iso2 }))
+      .filter((o) => o.label),
+    publishers: publishers
+      .filter((p) => { if (seenPublisherIds.has(p.id)) return false; seenPublisherIds.add(p.id); return true; })
+      .map((p) => ({ value: String(p.id), label: p.name ? `${p.name} - ${p.id}` : String(p.id) }))
       .filter((o) => o.label),
   };
 

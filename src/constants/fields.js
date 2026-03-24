@@ -11,7 +11,7 @@ export const structuredFields = [
     options: [{ value: "", label: "—" }, { value: "1", label: "1 — iOS" }, { value: "2", label: "2 — Android" }] },
   { id: "p-appversion",        key: "appversion",        type: "text",     group: "client", label: "App version",    placeholder: "6.3.4" },
   { id: "p-storeversion",      key: "storeversion",      type: "text",     group: "client", label: "Store version",  placeholder: "6.3.4" },
-  { id: "p-publisher",         key: "publisher",         type: "text",     group: "client", label: "Publisher",      placeholder: "147" },
+  { id: "p-publisher",         key: "publisher",         type: "db-select", group: "client", label: "Publisher",      dbKey: "publishers" },
   { id: "p-theme",             key: "theme",             type: "select",   group: "client", label: "Theme",
     options: [{ value: "", label: "—" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }] },
   { id: "p-lang",              key: "lang",              type: "db-select", group: "user",  label: "Language",       dbKey: "languages" },
