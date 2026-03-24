@@ -1,5 +1,5 @@
 import { structuredFields } from "../../constants/fields";
-import { useCountries } from "../../hooks/useDbData";
+import { useCountries, useLanguages } from "../../hooks/useDbData";
 import ParamField from "./ParamField";
 
 const groups = [
@@ -16,11 +16,19 @@ export default function BuilderPanel({
   onBuild, onClear,
 }) {
   const { data: countries } = useCountries();
-  const seenIds = new Set();
+  const { data: languages } = useLanguages();
+
+  const seenCountryIds = new Set();
+  const seenLangIds = new Set();
   const dbOptions = {
     countries: countries
-      .filter((c) => { if (seenIds.has(c.id)) return false; seenIds.add(c.id); return true; })
-      .map((c) => ({ value: String(c.id), label: c.name || c.code })),
+      .filter((c) => { if (seenCountryIds.has(c.id)) return false; seenCountryIds.add(c.id); return true; })
+      .map((c) => ({ value: String(c.id), label: c.name || c.code }))
+      .filter((o) => o.label),
+    languages: languages
+      .filter((l) => { if (seenLangIds.has(l.id)) return false; seenLangIds.add(l.id); return true; })
+      .map((l) => ({ value: String(l.id), label: l.name || l.cultureName || l.iso2 }))
+      .filter((o) => o.label),
   };
 
   return (

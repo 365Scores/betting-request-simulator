@@ -19,3 +19,7 @@ function useFetch(path) {
 export function useCountries() {
   return useFetch("/countries");
 }
+
+export function useLanguages() {
+  return useFetch("/languages");
+}

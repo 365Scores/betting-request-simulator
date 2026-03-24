@@ -8,15 +8,21 @@ router.get("/", async (req, res) => {
     const pool = await getPool();
     const result = await pool.request().query(`
       SELECT
-        LANGUAGE_ID       AS id,
-        CULTURE_NAME      AS cultureName,
-        ISO_2_LETTERS_CODE AS iso2,
-        ISO_3_LETTERS_CODE AS iso3,
-        DIRECTION         AS direction,
-        IS_DISPLAYED      AS isDisplayed,
-        FATHER_LANG_ID    AS parentLangId
-      FROM T_LANGUAGES
-      ORDER BY LANGUAGE_ID
+        l.LANGUAGE_ID        AS id,
+        l.CULTURE_NAME       AS cultureName,
+        l.ISO_2_LETTERS_CODE AS iso2,
+        l.ISO_3_LETTERS_CODE AS iso3,
+        l.DIRECTION          AS direction,
+        l.IS_DISPLAYED       AS isDisplayed,
+        l.FATHER_LANG_ID     AS parentLangId,
+        l.LANG_TYPE          AS langType,
+        dv.VALUE             AS name
+      FROM T_LANGUAGES l
+      LEFT JOIN T_DICT_VALUES dv
+        ON dv.TERM_ID = l.NAME_ID
+        AND dv.LANG_ID = 1
+      WHERE l.LANG_TYPE = 1
+      ORDER BY dv.VALUE
     `);
     res.json(result.recordset);
   } catch (err) {
