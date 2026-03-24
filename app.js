@@ -1,3 +1,12 @@
+// Mock bookmaker distribution — placeholder until real logic is wired in
+const mockDistribution = [
+  { id: 14,  name: "Bet365",       color: "#007B5B", pct: 42 },
+  { id: 2,   name: "William Hill", color: "#4a90d9", pct: 21 },
+  { id: 5,   name: "Ladbrokes",    color: "#e03232", pct: 16 },
+  { id: 8,   name: "Betway",       color: "#00a651", pct: 12 },
+  { id: 11,  name: "Coral",        color: "#0070b8", pct:  9 },
+];
+
 const exampleUrl =
   "https://mobileapi.365scores.com/Data/Games/GameCenter/?apptype=1&appversion=6.3.4&games=4467438&lang=10&oddsformat=1&shownaodds=true&storeversion=6.3.4&theme=light&tz=15&uc=13&usertestgroup=69&withexpanded=true&withexpandedstats=true&withnews=true&withstats=false&publisher=147";
 
@@ -33,6 +42,8 @@ const buildUrlButton   = document.getElementById("buildUrl");
 const clearParamsButton= document.getElementById("clearParams");
 const responseStatus   = document.getElementById("responseStatus");
 const responseBody     = document.getElementById("responseBody");
+const summarySection   = document.getElementById("summarySection");
+const summaryContent   = document.getElementById("summaryContent");
 const historyList      = document.getElementById("history");
 
 const historyEntries = [];
@@ -136,6 +147,90 @@ function readExtraParams() {
       return { key: keyEl.value.trim(), value: valueEl.value.trim() };
     })
     .filter(({ key }) => key.length > 0);
+}
+
+function collectBMIDs(obj, counts = {}) {
+  if (!obj || typeof obj !== "object") return counts;
+  if (Array.isArray(obj)) {
+    obj.forEach((item) => collectBMIDs(item, counts));
+  } else {
+    if (obj.BMID !== undefined) {
+      counts[obj.BMID] = (counts[obj.BMID] || 0) + 1;
+    }
+    Object.values(obj).forEach((val) => collectBMIDs(val, counts));
+  }
+  return counts;
+}
+
+function buildSummary(json) {
+  summarySection.classList.remove("summary-hidden");
+  summaryContent.innerHTML = "";
+
+  // Resolve actual returned bookmaker from response
+  const bmMeta = {};
+  function collectBmMeta(obj) {
+    if (!obj || typeof obj !== "object") return;
+    if (Array.isArray(obj)) { obj.forEach(collectBmMeta); return; }
+    if (Array.isArray(obj.Bookmakers)) {
+      obj.Bookmakers.forEach((bm) => {
+        if (bm.ID && !bmMeta[bm.ID]) {
+          bmMeta[bm.ID] = { name: bm.Name, color: bm.Color || "#4f77ff" };
+        }
+      });
+    }
+    Object.values(obj).forEach(collectBmMeta);
+  }
+  collectBmMeta(json);
+
+  const topBmId = json.Games?.[0]?.TopBookmaker ?? null;
+  const returnedBm = topBmId !== null
+    ? (bmMeta[topBmId] || { name: `BM #${topBmId}`, color: "#4f77ff" })
+    : null;
+
+  // ── Returned bookmaker ──────────────────────────────────────
+  if (returnedBm) {
+    const topEl = document.createElement("div");
+    topEl.className = "summary-top";
+    topEl.innerHTML = `
+      <div class="summary-section-label">Returned bookmaker</div>
+      <div class="summary-returned">
+        <div class="summary-returned-dot" style="background:${returnedBm.color}"></div>
+        <div class="summary-returned-name" style="color:${returnedBm.color}">${returnedBm.name}</div>
+      </div>
+    `;
+    summaryContent.append(topEl);
+  }
+
+  // ── Potential distribution (mock) ───────────────────────────
+  const distEl = document.createElement("div");
+  distEl.className = "summary-dist";
+
+  const distLabel = document.createElement("div");
+  distLabel.className = "summary-section-label";
+  distLabel.innerHTML = 'Potential distribution <span class="summary-mock-badge">mock</span>';
+  distEl.append(distLabel);
+
+  mockDistribution.forEach(({ id, name, color, pct }) => {
+    const isReturned = id === topBmId;
+    const row = document.createElement("div");
+    row.className = "summary-row" + (isReturned ? " summary-row-returned" : "");
+    row.innerHTML = `
+      <div class="summary-row-info">
+        <div class="summary-row-left">
+          <div class="summary-row-dot" style="background:${color}"></div>
+          <span class="summary-row-name">${name}</span>
+          ${isReturned ? '<span class="summary-returned-badge">returned</span>' : ""}
+        </div>
+        <span class="summary-row-pct">${pct}%</span>
+      </div>
+      <div class="summary-bar-track">
+        <div class="summary-bar-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+    `;
+    distEl.append(row);
+  });
+
+  summaryContent.append(distEl);
 }
 
 function createJsonNode(value, depth = 0) {
@@ -310,6 +405,7 @@ async function sendRequest() {
   responseBody.classList.remove("muted");
   if (bodyJson !== null) {
     responseBody.append(createJsonNode(bodyJson));
+    buildSummary(bodyJson);
   } else {
     responseBody.textContent = bodyText || "(No response body)";
   }
