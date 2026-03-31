@@ -22,6 +22,7 @@ router.get("/", async (req, res) => {
         ON dv.TERM_ID = l.NAME_ID
         AND dv.LANG_ID = 1
       WHERE l.LANG_TYPE = 1
+        AND dv.VALUE NOT IN ('WEB', 'BUZZ')
       ORDER BY dv.VALUE
     `);
     res.json(result.recordset);
