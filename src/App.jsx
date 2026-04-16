@@ -21,6 +21,7 @@ export default function App() {
   const params = useParams();
   const request = useRequest();
   const history = useHistory();
+  const [distribution, setDistribution] = useState(null);
 
   // Initialise with example params on mount
   useState(() => { params.populate(loadExample().params); });
@@ -68,7 +69,18 @@ export default function App() {
       return;
     }
     const result = await request.sendRequest(requestUrl.trim());
-    if (result) history.addEntry(result.url, result.statusLabel);
+    if (result) {
+      history.addEntry(result.url, result.statusLabel);
+      const { uc, publisher, apptype } = params.structured;
+      const qp = new URLSearchParams();
+      if (uc)        qp.set("countryId",   uc);
+      if (publisher) qp.set("publisherId", publisher);
+      if (apptype)   qp.set("appType",     apptype);
+      fetch(`http://localhost:3001/api/distribution?${qp}`)
+        .then((r) => r.json())
+        .then(setDistribution)
+        .catch(() => setDistribution([]));
+    }
   }
 
   function handleClear() {
@@ -121,7 +133,7 @@ export default function App() {
         />
 
         <div className="right-column">
-          <ResponseSummary responseJson={request.responseJson} />
+          <ResponseSummary responseJson={request.responseJson} distribution={distribution} />
           <ResponseViewer
             responseJson={request.responseJson}
             rawText={request.rawText}

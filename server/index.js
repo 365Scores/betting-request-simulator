@@ -7,20 +7,22 @@ import bookmakersRouter from "./routes/bookmakers.js";
 import languagesRouter from "./routes/languages.js";
 import countriesRouter from "./routes/countries.js";
 import publishersRouter from "./routes/publishers.js";
+import distributionRouter from "./routes/distribution.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.SERVER_PORT || 3001;
 
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: ["http://localhost:5173", "http://localhost:5174"] }));
 app.use(express.json());
 
 app.use("/api/schema",     schemaRouter);
 app.use("/api/bookmakers", bookmakersRouter);
 app.use("/api/languages",  languagesRouter);
 app.use("/api/countries",  countriesRouter);
-app.use("/api/publishers", publishersRouter);
+app.use("/api/publishers",   publishersRouter);
+app.use("/api/distribution", distributionRouter);
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
