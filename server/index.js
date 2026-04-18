@@ -26,12 +26,8 @@ app.use("/api/distribution", distributionRouter);
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
-// Connect to DB then start server
+// Start server immediately; attempt DB connection in background
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 getPool()
-  .then(() => {
-    app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
-  })
-  .catch((err) => {
-    console.error("Failed to connect to database:", err.message);
-    process.exit(1);
-  });
+  .then(() => console.log("Database connected"))
+  .catch((err) => console.error("Database unavailable — DB routes will return empty:", err.message));

@@ -34,20 +34,6 @@ export default function App() {
     setUrlStatus({ message: "Example URL loaded.", isError: false });
   }
 
-  function handleParse() {
-    if (!requestUrl.trim()) {
-      setUrlStatus({ message: "Paste a URL to parse.", isError: true });
-      return;
-    }
-    try {
-      const parsed = parseUrl(requestUrl.trim());
-      setBaseUrl(parsed.baseUrl);
-      params.populate(parsed.params);
-      setUrlStatus({ message: "Parsed into builder.", isError: false });
-    } catch {
-      setUrlStatus({ message: "Invalid URL.", isError: true });
-    }
-  }
 
   function handleBuild() {
     if (!baseUrl.trim()) {
@@ -108,7 +94,7 @@ export default function App() {
             value={requestUrl}
             onChange={(e) => setRequestUrl(e.target.value)}
           />
-          <button onClick={handleParse}>Parse</button>
+          <button onClick={handleBuild}>Build URL</button>
           <button className="secondary" onClick={handleSend}>Send request</button>
         </div>
         {urlStatus.message && (
@@ -128,7 +114,6 @@ export default function App() {
           onAddExtra={params.addExtra}
           onRemoveExtra={params.removeExtra}
           onExtraChange={params.setExtraField}
-          onBuild={handleBuild}
           onClear={handleClear}
         />
 
