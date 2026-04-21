@@ -44,3 +44,35 @@ export function useLanguages() {
 export function usePublishers() {
   return useFetch("/publishers");
 }
+
+export function useLineTypes() {
+  return useFetch("/line-types");
+}
+
+export function useBookmakers() {
+  return useFetch("/bookmakers/names");
+}
+
+export function useSports() {
+  return useFetch("/sports");
+}
+
+export function useCurrencies() {
+  return useFetch("/currencies");
+}
+
+export function useCompetitions() {
+  return useFetch("/competitions");
+}
+
+export function useSeasons(competitionId) {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    if (!competitionId) { setData([]); return; }
+    fetch(`${API}/competitions/${competitionId}/seasons`)
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(setData)
+      .catch(() => setData([]));
+  }, [competitionId]);
+  return { data };
+}

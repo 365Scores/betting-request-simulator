@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { structuredFields, mobileApiEndpoints } from "../../constants/fields";
-import { useCountries, useLanguages, usePublishers } from "../../hooks/useDbData";
+import { useCountries, useLanguages, usePublishers, useLineTypes, useBookmakers, useSports, useCurrencies, useCompetitions, useSeasons } from "../../hooks/useDbData";
 import ParamField from "./ParamField";
 
 function BaseUrlSelect({ value, onChange }) {
@@ -76,9 +76,18 @@ export default function BuilderPanel({
   extras, onAddExtra, onRemoveExtra, onExtraChange,
   onClear,
 }) {
-  const { data: countries } = useCountries();
-  const { data: languages } = useLanguages();
-  const { data: publishers } = usePublishers();
+  const { data: countries }    = useCountries();
+  const { data: languages }    = useLanguages();
+  const { data: publishers }   = usePublishers();
+  const { data: lineTypes }    = useLineTypes();
+  const { data: bookmakers }   = useBookmakers();
+  const { data: sports }       = useSports();
+  const { data: currencies }   = useCurrencies();
+  const { data: competitions } = useCompetitions();
+
+  const activeCompetitionId =
+    structured.competition || structured.Competitions || structured.competitionId || "";
+  const { data: seasons } = useSeasons(activeCompetitionId);
 
   const seenCountryIds = new Set();
   const seenLangIds = new Set();
@@ -92,10 +101,34 @@ export default function BuilderPanel({
       .filter((l) => { if (seenLangIds.has(l.id)) return false; seenLangIds.add(l.id); return true; })
       .map((l) => ({ value: String(l.id), label: l.name || l.cultureName || l.iso2 }))
       .filter((o) => o.label),
-    publishers: publishers
-      .filter((p) => { if (seenPublisherIds.has(p.id)) return false; seenPublisherIds.add(p.id); return true; })
-      .map((p) => ({ value: String(p.id), label: p.name ? `${p.name} - ${p.id}` : String(p.id) }))
-      .filter((o) => o.label),
+    publishers: [
+      { value: "-1", label: "Organic - -1" },
+      ...publishers
+        .filter((p) => { if (seenPublisherIds.has(p.id)) return false; seenPublisherIds.add(p.id); return true; })
+        .map((p) => ({ value: String(p.id), label: p.name ? `${p.name} - ${p.id}` : String(p.id) }))
+        .filter((o) => o.label),
+    ],
+    lineTypes: lineTypes
+      .map((t) => {
+        const cleaned = t.name
+          .replace(/bet/gi, "")
+          .replace(/([A-Z])/g, " $1")
+          .replace(/(\d)\s+X(?=\d)/g, "$1X")
+          .replace(/(\d+X\d+)/g, " $1")
+          .replace(/\s+/g, " ")
+          .trim();
+        return { value: String(t.id), label: `${cleaned} - ${t.id}` };
+      }),
+    bookmakers: bookmakers
+      .map((b) => ({ value: String(b.id), label: `${b.name} - ${b.id}` })),
+    sports: sports
+      .map((s) => ({ value: String(s.id), label: `${s.name} - ${s.id}` })),
+    currencies: currencies
+      .map((c) => ({ value: String(c.id), label: `${c.name} - ${c.id}` })),
+    competitions: competitions
+      .map((c) => ({ value: String(c.id), label: `${c.name} - ${c.id}` })),
+    seasons: seasons
+      .map((s) => ({ value: String(s.id), label: String(s.id) })),
   };
 
   const activeEndpoint = mobileApiEndpoints.find((e) => e.url === baseUrl);
@@ -132,6 +165,7 @@ export default function BuilderPanel({
                     placeholder={field.placeholder}
                     options={field.options}
                     dbOptions={field.dbKey ? dbOptions[field.dbKey] : undefined}
+                    searchUrl={field.searchUrl}
                   />
                 ))}
               </div>

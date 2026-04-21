@@ -8,6 +8,11 @@ import languagesRouter from "./routes/languages.js";
 import countriesRouter from "./routes/countries.js";
 import publishersRouter from "./routes/publishers.js";
 import distributionRouter from "./routes/distribution.js";
+import lineTypesRouter from "./routes/lineTypes.js";
+import competitionsRouter from "./routes/competitions.js";
+import competitorsRouter from "./routes/competitors.js";
+import sportsRouter from "./routes/sports.js";
+import currenciesRouter from "./routes/currencies.js";
 
 dotenv.config();
 
@@ -23,6 +28,11 @@ app.use("/api/languages",  languagesRouter);
 app.use("/api/countries",  countriesRouter);
 app.use("/api/publishers",   publishersRouter);
 app.use("/api/distribution", distributionRouter);
+app.use("/api/line-types",    lineTypesRouter);
+app.use("/api/competitions", competitionsRouter);
+app.use("/api/competitors",  competitorsRouter);
+app.use("/api/sports",       sportsRouter);
+app.use("/api/currencies",   currenciesRouter);
 
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
