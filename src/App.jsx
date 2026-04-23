@@ -21,6 +21,7 @@ export default function App() {
   const params = useParams();
   const request = useRequest();
   const history = useHistory();
+  const [distribution, setDistribution] = useState(null);
 
   // Initialise with example params on mount
   useState(() => { params.populate(loadExample().params); });
@@ -33,20 +34,6 @@ export default function App() {
     setUrlStatus({ message: "Example URL loaded.", isError: false });
   }
 
-  function handleParse() {
-    if (!requestUrl.trim()) {
-      setUrlStatus({ message: "Paste a URL to parse.", isError: true });
-      return;
-    }
-    try {
-      const parsed = parseUrl(requestUrl.trim());
-      setBaseUrl(parsed.baseUrl);
-      params.populate(parsed.params);
-      setUrlStatus({ message: "Parsed into builder.", isError: false });
-    } catch {
-      setUrlStatus({ message: "Invalid URL.", isError: true });
-    }
-  }
 
   function handleBuild() {
     if (!baseUrl.trim()) {
@@ -68,7 +55,18 @@ export default function App() {
       return;
     }
     const result = await request.sendRequest(requestUrl.trim());
-    if (result) history.addEntry(result.url, result.statusLabel);
+    if (result) {
+      history.addEntry(result.url, result.statusLabel);
+      const { uc, publisher, AppType } = params.structured;
+      const qp = new URLSearchParams();
+      if (uc)        qp.set("countryId",   uc);
+      if (publisher) qp.set("publisherId", publisher);
+      if (AppType)   qp.set("appType",     AppType);
+      fetch(`http://localhost:3001/api/distribution?${qp}`)
+        .then((r) => r.json())
+        .then(setDistribution)
+        .catch(() => setDistribution([]));
+    }
   }
 
   function handleClear() {
@@ -96,7 +94,7 @@ export default function App() {
             value={requestUrl}
             onChange={(e) => setRequestUrl(e.target.value)}
           />
-          <button onClick={handleParse}>Parse</button>
+          <button onClick={handleBuild}>Build URL</button>
           <button className="secondary" onClick={handleSend}>Send request</button>
         </div>
         {urlStatus.message && (
@@ -109,19 +107,18 @@ export default function App() {
       <section className="grid">
         <BuilderPanel
           baseUrl={baseUrl}
-          onBaseUrlChange={setBaseUrl}
+          onBaseUrlChange={(url) => { setBaseUrl(url); params.clearQuery(); }}
           structured={params.structured}
           onParamChange={params.setParam}
           extras={params.extras}
           onAddExtra={params.addExtra}
           onRemoveExtra={params.removeExtra}
           onExtraChange={params.setExtraField}
-          onBuild={handleBuild}
           onClear={handleClear}
         />
 
         <div className="right-column">
-          <ResponseSummary responseJson={request.responseJson} />
+          <ResponseSummary responseJson={request.responseJson} distribution={distribution} />
           <ResponseViewer
             responseJson={request.responseJson}
             rawText={request.rawText}

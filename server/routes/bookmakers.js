@@ -3,6 +3,25 @@ import { getPool } from "../db.js";
 
 const router = Router();
 
+// Bookmaker names for dropdowns
+router.get("/names", async (req, res) => {
+  try {
+    const pool = await getPool();
+    const result = await pool.request().query(`
+      SELECT
+        b.BOOKMAKER_ID AS id,
+        v.VALUE        AS name
+      FROM T_BET_BOOKMAKERS b
+      JOIN T_DICT_VALUES v ON v.TERM_ID = b.NAME_ID AND v.LANG_ID = 1
+      WHERE v.VALUE IS NOT NULL AND v.VALUE <> ''
+      ORDER BY b.BOOKMAKER_ID
+    `);
+    res.json(result.recordset);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // All bookmakers
 router.get("/", async (req, res) => {
   try {
