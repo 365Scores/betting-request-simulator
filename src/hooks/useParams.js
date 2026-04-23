@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { structuredFields } from "../constants/fields";
 
+const queryKeys = new Set(
+  structuredFields.filter((f) => f.group === "query").map((f) => f.key)
+);
+
 const defaultStructured = Object.fromEntries(
-  structuredFields.map(({ key, type }) => [key, type === "checkbox" ? false : ""])
+  structuredFields.map(({ key, type, default: def }) => [
+    key,
+    def !== undefined ? def : type === "checkbox" ? false : "",
+  ])
 );
 
 export function useParams() {
@@ -36,6 +43,17 @@ export function useParams() {
 
     setStructured(newStructured);
     setExtras(newExtras);
+  }
+
+  function clearQuery() {
+    setStructured((prev) => {
+      const next = { ...prev };
+      queryKeys.forEach((key) => {
+        next[key] = typeof prev[key] === "boolean" ? false : "";
+      });
+      return next;
+    });
+    setExtras([]);
   }
 
   function clear() {
@@ -73,5 +91,5 @@ export function useParams() {
     );
   }
 
-  return { structured, setParam, extras, addExtra, removeExtra, setExtraField, populate, clear, readAll };
+  return { structured, setParam, extras, addExtra, removeExtra, setExtraField, populate, clear, clearQuery, readAll };
 }

@@ -57,11 +57,11 @@ export default function App() {
     const result = await request.sendRequest(requestUrl.trim());
     if (result) {
       history.addEntry(result.url, result.statusLabel);
-      const { uc, publisher, apptype } = params.structured;
+      const { uc, publisher, AppType } = params.structured;
       const qp = new URLSearchParams();
       if (uc)        qp.set("countryId",   uc);
       if (publisher) qp.set("publisherId", publisher);
-      if (apptype)   qp.set("appType",     apptype);
+      if (AppType)   qp.set("appType",     AppType);
       fetch(`http://localhost:3001/api/distribution?${qp}`)
         .then((r) => r.json())
         .then(setDistribution)
@@ -107,7 +107,7 @@ export default function App() {
       <section className="grid">
         <BuilderPanel
           baseUrl={baseUrl}
-          onBaseUrlChange={setBaseUrl}
+          onBaseUrlChange={(url) => { setBaseUrl(url); params.clearQuery(); }}
           structured={params.structured}
           onParamChange={params.setParam}
           extras={params.extras}
